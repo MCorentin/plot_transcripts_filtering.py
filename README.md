@@ -8,7 +8,7 @@ Useful to assess the level of filtering an Rna seq assembly will need (Low TPM t
 
 ## Usage
 
-python plot_TPM_values.py -i <rsemDirectory> -r <start,stop,step> -o <outputDir>
+"python plot_TPM_values.py -i <rsemDirectory> -r <start,stop,step> -o <outputDir>"
 
 The RSEM directory must contain a *.isoform.results file with the TPM values as the 6th column
 
