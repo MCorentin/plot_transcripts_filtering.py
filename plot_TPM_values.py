@@ -52,12 +52,16 @@ for o, a in opts:
 
 
 if(rsemDir == None):
-	print "Please provide rsem directory as input (option -i / --rsemDir)"
+	print "Please provide rsem directory as input (option -i / --rsemDir)\n"
+	print "Usage:\n"
+	usage()
 	sys.exit()
 
 if(outDir == None):
-	print "Please provide output directory (option -o / --outputDir)"
-        sys.exit()
+	print "Please provide output directory (option -o / --outputDir)\n"
+        print "Usage:\n"
+        usage()
+	sys.exit()
 
 
 samples = None
@@ -65,6 +69,8 @@ cmd = "find " + rsemDir + " -name '*.isoforms.results'"
 samples = Popen(cmd, shell=True, stdout=PIPE).communicate()[0].split("\n")
 if(samples == None):
 	print "Could not find rsem results file in folder\n"
+	print "Usage:\n"
+        usage()
 	sys.exit()
 
 # Double check for range
