@@ -1,62 +1,77 @@
 #!/usr/bin/python
 
+# TO ADD :
+#	-r --range : to consider a range and step for the TPM filtering
+
 # Plot the number of isoforms against TPM value
 
 import os
 import getopt
+import sys
 from subprocess import call, Popen, PIPE
-import numpy as np
+#import numpy as np
 import matplotlib.pyplot as plt
 
-def usage:
-	print "-h for help\nInput:\n	-r for rsem directory\n	-i to take isoforms.results instead of genes.results\noutput:\n	-o for output directory\n"
+
+def usage():
+	print "-h / --help for help\nInput:\n	-i / --rsemDir for rsem directory\noutput:\n	-o / --outputDir for output directory\n"
 
 
+################################## GET OPTS ##################################################
 try:
-        opts, args = getopt.getopt(sys.argv[1:], "ho:r:", ["help", "output=", "rsemDir="])
-    except getopt.GetoptError as err:
+	opts, args = getopt.getopt(sys.argv[1:], "hi:o:", ["help", "rsemDir=", "outputDir="])
+except getopt.GetoptError as err:
         # print help information and exit:
         print str(err)  # will print something like "option -a not recognized"
         usage()
         sys.exit(2)
-    # If geneResult == T => considers genes.results in RSEM, or else isoforms.results
-    geneResult = T
-    output = None
-    rsemDir = None
-    for o, a in opts:
-        if o in ("-r", "--rsemDir"):
-            rsemDir = a
-        elif o in ("-o", "--output"):
-            output = a
-	elif o in ("-h", "--help"):
-            usage()
-            sys.exit()
-        else:
-            assert False, "unhandled option"
 
+# If geneResult == T => considers genes.results in RSEM, or else isoforms.results
+geneResult = "F"
+output = None
+rsemDir = None
+
+for o, a in opts:
+	if o in ("-i", "--rsemDir"):
+		rsemDir = a
+	elif o in ("-o", "--outputDir"):
+		output = a
+	elif o in ("-h", "--help"):
+		usage()
+		sys.exit()
+	else:
+		assert False, "unhandled option"
 
 
 if(rsemDir == None):
-	print "Please provide rsem directory as input (option -r / --rsemDir)"
+	print "Please provide rsem directory as input (option -i / --rsemDir)"
 	sys.exit()
 
-if(output == None)
-	print "Please provide output directory (option -o / --output)"
+if(output == None):
+	print "Please provide output directory (option -o / --outputDir)"
         sys.exit()
 
 
+samples = None
 cmd = "find " + rsemDir + " -name '*.isoforms.results'"
 samples = Popen(cmd, shell=True, stdout=PIPE).communicate()[0].split("\n")
+if(samples == None):
+	print "Could not find rsem results file in folder\n"
+	sys.exit()
+
+
+################################## PLOT ########################################################
 
 for s in samples:
 	if s != "":
 		thresholds = list()
 		nbIsoforms = list()
-		###### PLOT #####
+
 		plt.figure(figsize=(20,10))
 		print(s)
 		#For each TPM threshld
 		for tpmThreshold in range(0,6):
+			# Command to filter the TPM column (the 6th one) bu threshold and count the number of lines
 			cmd = "cat " + s + " | awk '$6 >= "+str(tpmThreshold)+" { print $6 }' | wc -l"
 
 			#Get the number of isoforms with TPM > threshold
@@ -66,7 +81,6 @@ for s in samples:
 
 			#Plot coordinates in the plot
 			strResult = str(result).replace("\n", "")
-			#print(strResult)
 			plt.text(tpmThreshold, result, "("+strResult+")")
 
 		#Print the plot
