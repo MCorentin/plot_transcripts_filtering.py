@@ -16,4 +16,4 @@ The RSEM directory must contain a *.isoform.results file with the TPM values as 
 
 For each TPM value the plot prints the number of transcripts left:
 
-![alt text](https://raw.githubusercontent.com/MCorentin//plot_TPM_values.py/master/example.png)
+![alt text](https://raw.githubusercontent.com/MCorentin/plot_TPM_values.py/master/example.png)
