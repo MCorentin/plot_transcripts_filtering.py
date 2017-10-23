@@ -1,9 +1,6 @@
 #!/usr/bin/python
 
-# TO ADD :
-#	-r --range : to consider a range and step for the TPM filtering
-
-# Plot the number of isoforms against TPM value
+# Plot the number of transcripts against TPM value
 
 import os
 import getopt
@@ -14,12 +11,12 @@ import matplotlib.pyplot as plt
 
 
 def usage():
-	print "-h / --help for help\nInput:\n	-i / --rsemDir for rsem directory\n	-r / --range for filtering range (format: start,stop,step) default:0,6,0.5\noutput:\n	-o / --outputDir for output directory\n"
+	print "-h / --help for help\nInput:\n	-i / --rsemMatrix file containing the TPM counts matrix (isoforms or genes)\n	-r / --range for filtering range (format: start,stop,step) default:0,6,0.5\noutput:\n	-o / --outputDir for output directory\n"
 
 
 ################################## GET OPTS ##################################################
 try:
-	opts, args = getopt.getopt(sys.argv[1:], "hi:r:o:", ["help", "rsemDir=", "range=", "outputDir="])
+	opts, args = getopt.getopt(sys.argv[1:], "hi:r:o:", ["help", "rsemMatrix=", "range=", "outputDir="])
 except getopt.GetoptError as err:
         # print help information and exit:
         print str(err)  # will print something like "option -a not recognized"
@@ -29,14 +26,14 @@ except getopt.GetoptError as err:
 # If geneResult == T => considers genes.results in RSEM, or else isoforms.results
 geneResult = "F"
 outDir = None
-rsemDir = None
+rsemMatrix = None
 start = 0
 stop = 6
 step = 0.5
 
 for o, a in opts:
-	if o in ("-i", "--rsemDir"):
-		rsemDir = a
+	if o in ("-i", "--rsemMatrix"):
+		rsemMatrix = a
 	elif o in ("-r", "--range"):
 		start,stop,step = a.split(",")
 		start = float(start)
@@ -51,8 +48,8 @@ for o, a in opts:
 		assert False, "unhandled option"
 
 
-if(rsemDir == None):
-	print "Please provide rsem directory as input (option -i / --rsemDir)\n"
+if(rsemMatrix == None):
+	print "Please provide rsem TPM Matrix as input (option -i / --rsemMatrix)\n"
 	print "Usage:\n"
 	usage()
 	sys.exit()
@@ -60,16 +57,6 @@ if(rsemDir == None):
 if(outDir == None):
 	print "Please provide output directory (option -o / --outputDir)\n"
         print "Usage:\n"
-        usage()
-	sys.exit()
-
-
-samples = None
-cmd = "find " + rsemDir + " -name '*.isoforms.results'"
-samples = Popen(cmd, shell=True, stdout=PIPE).communicate()[0].split("\n")
-if(samples == None):
-	print "Could not find rsem results file in folder\n"
-	print "Usage:\n"
         usage()
 	sys.exit()
 
@@ -89,34 +76,34 @@ if not(isinstance(step, (int, long, float))):
 
 ################################## PLOT ########################################################
 
-for s in samples:
-	if s != "":
-		thresholds = list()
-		nbIsoforms = list()
+thresholds = list()
+nbIsoforms = list()
 
-		plt.figure(figsize=(20,10))
-		print(s)
-		#For each TPM threshld
-		for tpmThreshold in np.arange(start, stop, step):
-			# Command to filter the TPM column (the 6th one) bu threshold and count the number of lines
-			cmd = "cat " + s + " | awk '$6 >= "+str(tpmThreshold)+" { print $6 }' | wc -l"
+plt.figure(figsize=(20,10))
+print(s)
+#For each TPM threshld
+for tpmThreshold in np.arange(start, stop, step):
+	#Get the number of isoforms with sum(TPM) > threshold
+	# "tail -n +2" is to skip the header (samples names)
+	# "awk '{for(i=1;i<=NF;i++) t+=$i; if(t>"+threshold+"){print t}; t=0}'" is to print the list of sums for all samples with sum(TPM) > threshold
+	# wc -l is to count the lines printed at the previous "step"
+	cmd = "tail -n +2 " + rsemMatrix + " | awk '{for(i=1;i<=NF;i++) t+=$i; if(t>"+threshold+"){print t}; t=0}' | wc -l
+	
+	result = Popen(cmd,shell=True,stdout=PIPE).communicate()[0]
+	thresholds.append(tpmThreshold)
+	nbIsoforms.append(result)
 
-			#Get the number of isoforms with TPM > threshold
-			result = Popen(cmd,shell=True,stdout=PIPE).communicate()[0]
-			thresholds.append(tpmThreshold)
-			nbIsoforms.append(result)
+	#Plot coordinates in the plot
+	strResult = str(result).replace("\n", "")
+	plt.text(tpmThreshold, result, "("+strResult+")")
 
-			#Plot coordinates in the plot
-			strResult = str(result).replace("\n", "")
-			plt.text(tpmThreshold, result, "("+strResult+")")
+	#Print the plot
+	plt.scatter(thresholds, nbIsoforms, color='dodgerblue', s=40)
+	plt.xlabel('TPM')
+	plt.ylabel('Number of isoforms > TPM')
+	plt.title(os.path.basename(s))
 
-		#Print the plot
-		plt.scatter(thresholds, nbIsoforms, color='dodgerblue', s=40)
-		plt.xlabel('TPM')
-		plt.ylabel('Number of isoforms > TPM')
-		plt.title(os.path.basename(s))
-
-		#plt.show()
-		graphFile = outDir + "/Nb_isoforms_TPM_"+ os.path.basename(s)
-		print "Saving graph :" + graphFile + "\n"
-		plt.savefig(graphFile +".png", bbox_inches='tight')
+	#plt.show()
+	graphFile = outDir + "/Nb_isoforms_TPM_"+ os.path.basename(s)
+	print "Saving graph :" + graphFile + "\n"
+	plt.savefig(graphFile +".png", bbox_inches='tight')
