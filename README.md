@@ -8,7 +8,7 @@ Useful to assess the level of filtering an Rna seq assembly will need (Low TPM t
 
 ## Usage
 
-python plot_TPM_values.py -i <i>rsemMatrix<\i> -r <i>start,stop,step<\i> -o <i>outputDir<\i>"
+python plot_TPM_values.py -i <i>rsemMatrix</i> -r <i>start,stop,step</i> -o <i>outputDir</i>"
 
 
 # Output 
