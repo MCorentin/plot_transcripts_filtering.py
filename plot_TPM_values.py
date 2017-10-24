@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Plot the number of transcripts against TPM value
+# Plot the number of transcripts against TPM value, use RMSE counts matrix as input
 
 import os
 import getopt
@@ -13,23 +13,22 @@ import matplotlib.pyplot as plt
 def usage():
 	print "-h / --help for help\nInput:\n	-i / --rsemMatrix file containing the TPM counts matrix (isoforms or genes)\n	-r / --range for filtering range (format: start,stop,step) default:0,6,0.5\noutput:\n	-o / --outputDir for output directory\n"
 
-
-################################## GET OPTS ##################################################
-try:
-	opts, args = getopt.getopt(sys.argv[1:], "hi:r:o:", ["help", "rsemMatrix=", "range=", "outputDir="])
-except getopt.GetoptError as err:
-        # print help information and exit:
-        print str(err)  # will print something like "option -a not recognized"
-        usage()
-        sys.exit(2)
-
-# If geneResult == T => considers genes.results in RSEM, or else isoforms.results
-geneResult = "F"
+# Default values
 outDir = None
 rsemMatrix = None
 start = 0
 stop = 6
 step = 0.5
+
+
+################################## GET OPTS ##################################################
+try:
+        opts, args = getopt.getopt(sys.argv[1:], "hi:r:o:", ["help", "rsemMatrix=", "range=", "outputDir="])
+except getopt.GetoptError as err:
+        # print help information and exit:
+        print str(err)  # will print something like "option -a not recognized"
+        usage()
+        sys.exit(2)
 
 for o, a in opts:
 	if o in ("-i", "--rsemMatrix"):
@@ -47,9 +46,9 @@ for o, a in opts:
 	else:
 		assert False, "unhandled option"
 
-
+# Check Input
 if(rsemMatrix == None):
-	print "Please provide rsem TPM Matrix as input (option -i / --rsemMatrix)\n"
+	print "Please provide RSEM TPM Matrix as input (option -i / --rsemMatrix)\n"
 	print "Usage:\n"
 	usage()
 	sys.exit()
@@ -60,7 +59,6 @@ if(outDir == None):
         usage()
 	sys.exit()
 
-# Double check for range
 if not(isinstance(start,(int, long, float))):
 	print("Check your range, 'start' is not an int, long or float !\n")
         sys.exit()
@@ -75,35 +73,41 @@ if not(isinstance(step, (int, long, float))):
 
 
 ################################## PLOT ########################################################
-
 thresholds = list()
 nbIsoforms = list()
 
 plt.figure(figsize=(20,10))
-print(s)
-#For each TPM threshld
+
+print(rsemMatrix)
+
+#For each TPM thresholds in 'range'
 for tpmThreshold in np.arange(start, stop, step):
-	#Get the number of isoforms with sum(TPM) > threshold
-	# "tail -n +2" is to skip the header (samples names)
-	# "awk '{for(i=1;i<=NF;i++) t+=$i; if(t>"+threshold+"){print t}; t=0}'" is to print the list of sums for all samples with sum(TPM) > threshold
-	# wc -l is to count the lines printed at the previous "step"
-	cmd = "tail -n +2 " + rsemMatrix + " | awk '{for(i=1;i<=NF;i++) t+=$i; if(t>"+threshold+"){print t}; t=0}' | wc -l
-	
+	print "Current Threshold: " + str(tpmThreshold)
+
+	# Get the number of isoforms with sum(TPM) > threshold
+	# "tail -n +2" is to skip the header (sample names)
+	# "awk '{for(i=2;i<=NF;i++) t+=$i; if(t>"+threshold+"){print t}; t=0}'" is to calculate sum for column 2 to NF (last column) and print sum > threashold
+	# "wc -l" is to count the lines printed at the previous "step"
+	cmd = str('tail -n +2 ') + str(rsemMatrix) + str(" | awk \'{for(i=2;i<=NF;i++) t+=$i; if(t> ") + str(tpmThreshold) + str("){print t}; t=0}\' | wc -l")
 	result = Popen(cmd,shell=True,stdout=PIPE).communicate()[0]
+
+	# 'thresholds' and 'nbIsoforms' works in parallel: thresholds[i] corresponds to nbIsoforms[i]
 	thresholds.append(tpmThreshold)
 	nbIsoforms.append(result)
 
-	#Plot coordinates in the plot
+	#Plot coordinates in the plot next to the dots
 	strResult = str(result).replace("\n", "")
 	plt.text(tpmThreshold, result, "("+strResult+")")
 
-	#Print the plot
-	plt.scatter(thresholds, nbIsoforms, color='dodgerblue', s=40)
-	plt.xlabel('TPM')
-	plt.ylabel('Number of isoforms > TPM')
-	plt.title(os.path.basename(s))
 
-	#plt.show()
-	graphFile = outDir + "/Nb_isoforms_TPM_"+ os.path.basename(s)
-	print "Saving graph :" + graphFile + "\n"
-	plt.savefig(graphFile +".png", bbox_inches='tight')
+# Print the plot using the lists created in the previous for loop
+plt.scatter(thresholds, nbIsoforms, color='dodgerblue', s=40)
+plt.xlabel('TPM')
+plt.ylabel('Number of isoforms > TPM')
+plt.title(os.path.basename(rsemMatrix))
+
+
+# Saving graph
+graphFile = outDir + "/Nb_isoforms_TPM_"+ os.path.basename(rsemMatrix)
+print "Saving graph :" + graphFile + "\n"
+plt.savefig(graphFile +".png", bbox_inches='tight')
