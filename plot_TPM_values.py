@@ -88,7 +88,8 @@ for tpmThreshold in np.arange(start, stop, step):
 	# "tail -n +2" is to skip the header (sample names)
 	# "awk '{for(i=2;i<=NF;i++) t+=$i; if(t>"+threshold+"){print t}; t=0}'" is to calculate sum for column 2 to NF (last column) and print sum > threashold
 	# "wc -l" is to count the lines printed at the previous "step"
-	cmd = str('tail -n +2 ') + str(rsemMatrix) + str(" | awk \'{for(i=2;i<=NF;i++) t+=$i; if(t> ") + str(tpmThreshold) + str("){print t}; t=0}\' | wc -l")
+	#cmd = str('tail -n +2 ') + str(rsemMatrix) + str(" | awk \'{for(i=2;i<=NF;i++) t+=$i; if(t> ") + str(tpmThreshold) + str("){print t}; t=0}\' | wc -l")
+	cmd = str('tail -n +2 ') + str(rsemMatrix) + str(" | awk \'{max=$2; for(i=2;i<=NF;i++) if($i>max) max=$i; if(max >= ") + str(tpmThreshold) + str(") {print max};}\' | wc -l")
 	result = Popen(cmd,shell=True,stdout=PIPE).communicate()[0]
 
 	# 'thresholds' and 'nbIsoforms' works in parallel: thresholds[i] corresponds to nbIsoforms[i]
@@ -101,6 +102,7 @@ for tpmThreshold in np.arange(start, stop, step):
 
 
 # Print the plot using the lists created in the previous for loop
+
 plt.scatter(thresholds, nbIsoforms, color='dodgerblue', s=40)
 plt.xlabel('TPM')
 plt.ylabel('Number of isoforms > TPM')
