@@ -1,16 +1,15 @@
 # Plot TPM Values
 
-Python Script to plot the Number of Transcript left after filtering by TPM (Transcripts Per Million) from a RSEM output
+Python script to plot the number of transcript left after filtering by TPM (Transcripts Per Million) from a RSEM count matrix.
 
 ## Motivation
 
-Useful to assess the level of filtering an Rna seq assembly will need (Low TPM transcripts are often artifacts)
+Useful to assess the level of filtering an Rna seq assembly will need (Low TPM transcripts are often artifacts).
 
 ## Usage
 
-"python plot_TPM_values.py -i <rsemDirectory> -r <start,stop,step> -o <outputDir>"
+python plot_TPM_values.py -i <i>rsemMatrix<\i> -r <i>start,stop,step<\i> -o <i>outputDir<\i>"
 
-The RSEM directory must contain a *.isoform.results file with the TPM values as the 6th column
 
 # Output 
 
