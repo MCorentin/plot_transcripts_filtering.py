@@ -110,6 +110,6 @@ plt.title(os.path.basename(rsemMatrix))
 
 
 # Saving graph
-graphFile = outDir + "/Nb_isoforms_TPM_"+ os.path.basename(rsemMatrix)
+graphFile = outDir + "/Nb_TPM_"+ os.path.basename(rsemMatrix)
 print "Saving graph :" + graphFile + "\n"
 plt.savefig(graphFile +".png", bbox_inches='tight')
