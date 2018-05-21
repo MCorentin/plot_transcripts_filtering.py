@@ -5,6 +5,7 @@
 import os
 import getopt
 import sys
+import shlex
 import numpy as np
 from subprocess import call, Popen, PIPE
 import matplotlib.pyplot as plt
@@ -84,13 +85,19 @@ print(rsemMatrix)
 for tpmThreshold in np.arange(start, stop, step):
 	print "Current Threshold: " + str(tpmThreshold)
 
-	# Get the number of isoforms with sum(TPM) > threshold
-	# "tail -n +2" is to skip the header (sample names)
-	# "awk '{for(i=2;i<=NF;i++) t+=$i; if(t>"+threshold+"){print t}; t=0}'" is to calculate sum for column 2 to NF (last column) and print sum > threashold
-	# "wc -l" is to count the lines printed at the previous "step"
-	#cmd = str('tail -n +2 ') + str(rsemMatrix) + str(" | awk \'{for(i=2;i<=NF;i++) t+=$i; if(t> ") + str(tpmThreshold) + str("){print t}; t=0}\' | wc -l")
-	cmd = str('tail -n +2 ') + str(rsemMatrix) + str(" | awk \'{max=$2; for(i=2;i<=NF;i++) if($i>max) max=$i; if(max >= ") + str(tpmThreshold) + str(") {print max};}\' | wc -l")
-	result = Popen(cmd,shell=True,stdout=PIPE).communicate()[0]
+	#cmd = str('tail -n +2 ') + str(rsemMatrix) + str(" | awk \'{max=$2; for(i=2;i<=NF;i++) if($i>max) max=$i; if(max >= ") + str(tpmThreshold) + str(") {print max};}\' | wc -l")
+
+	# First, remove header line from the matrix
+	cmd1 = "tail -n +2 " + str(rsemMatrix)
+	p1 = Popen(shlex.split(cmd1), shell=False, stdout=PIPE)
+
+	# Then keep the line only if max_expressed(Transcript) > current_TPM_threshold
+	cmd2 = "awk \'{max=$2; for(i=2;i<=NF;i++) if($i>max) max=$i; if(max >= " + str(tpmThreshold) + ") {print max};}\'"
+	p2 = Popen(shlex.split(cmd2), shell=False, stdin=p1.stdout, stdout=PIPE)
+
+	# Finally get the number of transcript for the result
+	cmd3 = "wc -l"
+	result = Popen(shlex.split(cmd3), shell=False, stdin=p2.stdout, stdout=PIPE).communicate()[0]
 
 	# 'thresholds' and 'nbIsoforms' works in parallel: thresholds[i] corresponds to nbIsoforms[i]
 	thresholds.append(tpmThreshold)
