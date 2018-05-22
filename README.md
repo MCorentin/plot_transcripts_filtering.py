@@ -9,9 +9,9 @@ Useful to assess the level of filtering a transcriptomic assembly will need (low
 
 ## Usage
 
-python plot_TPM_values.py -i <i>rsemMatrix</i> -r <i>start,stop,step</i> -o <i>outputDir</i>
+python plot_TPM_values.py -i <i>matrix</i> -r <i>start,stop,step</i> -o <i>outputDir</i>
 
-<i>rsemMatrix</i>: RSEM [1] matrix of gene expression (any matrix with samples as columns and transcripts as rows should work, the first line will be considered as a header and will be skipped).
+<i>matrix</i>: RSEM [1] matrix of gene expression (any matrix with samples as columns and transcripts as rows should work, the first line will be considered as a header and will be skipped).
 
 <i>start,stop,step</i>: The filtering range (default: 0, 6, 0.5)
 
