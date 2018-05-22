@@ -21,7 +21,7 @@ python plot_TPM_values.py -i <i>matrix</i> -r <i>start,stop,step</i> -o <i>outpu
 
 For each threshold, the plot prints the number of transcripts left:
 
-![alt text](https://raw.githubusercontent.com/MCorentin/plot_TPM_values.py/master/example.png)
+![alt text](https://raw.githubusercontent.com/MCorentin/plot_transcripts_filtering.py/master/Nb_transcripts_example.EXPR.matrix.png)
 
 
 
