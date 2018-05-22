@@ -1,4 +1,4 @@
-# Plot TPM Values
+# Plot transcripts filtering
 
 Python script to plot the number of transcript left after filtering a RSEM count matrix.
 A transcript is filtered if its expression is not higher than the threshold in any of the samples.
@@ -19,7 +19,7 @@ python plot_TPM_values.py -i <i>rsemMatrix</i> -r <i>start,stop,step</i> -o <i>o
 
 # Output 
 
-For each TPM value the plot prints the number of transcripts left:
+For each threshold, the plot prints the number of transcripts left:
 
 ![alt text](https://raw.githubusercontent.com/MCorentin/plot_TPM_values.py/master/example.png)
 
