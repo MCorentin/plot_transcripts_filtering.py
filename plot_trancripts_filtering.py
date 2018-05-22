@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Plot the number of transcripts against TPM value, use RMSE counts matrix as input
+# Plot the number of transcripts against expression value, use counts matrix as input
 
 import os
 import getopt
@@ -12,10 +12,10 @@ import matplotlib.pyplot as plt
 
 
 def usage():
-	print "-h / --help for help\nInput:\n	-i / --rsemMatrix file containing the TPM counts matrix (isoforms or genes)\n	-r / --range for filtering range (format: start,stop,step) default:0,6,0.5\noutput:\n	-o / --outputDir for output directory\n"
+	print "-h / --help for help\nInput:\n	-i / --rsemMatrix file containing the counts matrix (isoforms or genes)\n	-r / --range for filtering range (format: start,stop,step) default:0,6,0.5\noutput:\n	-o / --outputDir for output directory\n"
 
 # Default values
-outDir = None
+outDir = "./"
 rsemMatrix = None
 start = 0
 stop = 6
@@ -72,6 +72,14 @@ if not(isinstance(step, (int, long, float))):
 	print("Check your range, 'step' is not an int, long or float !\n")
 	sys.exit()
 
+if not(os.path.isdir(outDir)):
+	print(str(outDir)+" is not a directory !\n")
+        sys.exit()
+
+if not(os.path.exists(rsemMatrix)):
+	print(str(rsemMatrix)+" does not exists !\n")
+        sys.exit()
+
 
 ################################## PLOT ########################################################
 thresholds = list()
@@ -82,8 +90,8 @@ plt.figure(figsize=(20,10))
 print(rsemMatrix)
 
 #For each TPM thresholds in 'range'
-for tpmThreshold in np.arange(start, stop, step):
-	print "Current Threshold: " + str(tpmThreshold)
+for tpmThreshold in np.arange(start, stop+step, step):
+	print("Current Threshold: " + str(tpmThreshold))
 
 	#cmd = str('tail -n +2 ') + str(rsemMatrix) + str(" | awk \'{max=$2; for(i=2;i<=NF;i++) if($i>max) max=$i; if(max >= ") + str(tpmThreshold) + str(") {print max};}\' | wc -l")
 
@@ -107,16 +115,18 @@ for tpmThreshold in np.arange(start, stop, step):
 	strResult = str(result).replace("\n", "")
 	plt.text(tpmThreshold, result, "("+strResult+")")
 
+	print("Number of transcripts: " + strResult + "\n")
 
 # Print the plot using the lists created in the previous for loop
 
 plt.scatter(thresholds, nbIsoforms, color='dodgerblue', s=40)
-plt.xlabel('TPM')
-plt.ylabel('Number of isoforms > TPM')
+plt.xlabel('Expression level')
+plt.ylabel('Number of isoforms > expression')
+plt.xlim(start, stop+1)
 plt.title(os.path.basename(rsemMatrix))
 
 
 # Saving graph
-graphFile = outDir + "/Nb_TPM_"+ os.path.basename(rsemMatrix)
+graphFile = outDir + "/Nb_transcripts_"+ os.path.basename(rsemMatrix)
 print "Saving graph :" + graphFile + "\n"
 plt.savefig(graphFile +".png", bbox_inches='tight')
