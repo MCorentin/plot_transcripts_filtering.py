@@ -12,11 +12,11 @@ import matplotlib.pyplot as plt
 
 
 def usage():
-	print "-h / --help for help\nInput:\n	-i / --rsemMatrix file containing the counts matrix (isoforms or genes)\n	-r / --range for filtering range (format: start,stop,step) default:0,6,0.5\noutput:\n	-o / --outputDir for output directory\n"
+	print "-h / --help for help\nInput:\n	-i / --matrix file containing the counts matrix (isoforms or genes)\n	-r / --range for filtering range (format: start,stop,step) default:0,6,0.5\noutput:\n	-o / --outputDir for output directory\n"
 
 # Default values
 outDir = "./"
-rsemMatrix = None
+matrix = None
 start = 0
 stop = 6
 step = 0.5
@@ -24,7 +24,7 @@ step = 0.5
 
 ################################## GET OPTS ##################################################
 try:
-        opts, args = getopt.getopt(sys.argv[1:], "hi:r:o:", ["help", "rsemMatrix=", "range=", "outputDir="])
+        opts, args = getopt.getopt(sys.argv[1:], "hi:r:o:", ["help", "matrix=", "range=", "outputDir="])
 except getopt.GetoptError as err:
         # print help information and exit:
         print str(err)  # will print something like "option -a not recognized"
@@ -32,8 +32,8 @@ except getopt.GetoptError as err:
         sys.exit(2)
 
 for o, a in opts:
-	if o in ("-i", "--rsemMatrix"):
-		rsemMatrix = a
+	if o in ("-i", "--matrix"):
+		matrix = a
 	elif o in ("-r", "--range"):
 		start,stop,step = a.split(",")
 		start = float(start)
@@ -48,8 +48,8 @@ for o, a in opts:
 		assert False, "unhandled option"
 
 # Check Input
-if(rsemMatrix == None):
-	print "Please provide RSEM TPM Matrix as input (option -i / --rsemMatrix)\n"
+if(matrix == None):
+	print "Please provide a count matrix as input (option -i / --matrix)\n"
 	print "Usage:\n"
 	usage()
 	sys.exit()
@@ -76,8 +76,8 @@ if not(os.path.isdir(outDir)):
 	print(str(outDir)+" is not a directory !\n")
         sys.exit()
 
-if not(os.path.exists(rsemMatrix)):
-	print(str(rsemMatrix)+" does not exists !\n")
+if not(os.path.exists(matrix)):
+	print(str(matrix)+" does not exists !\n")
         sys.exit()
 
 
@@ -87,7 +87,7 @@ nbIsoforms = list()
 
 plt.figure(figsize=(20,10))
 
-print(rsemMatrix)
+print(matrix)
 
 #For each TPM thresholds in 'range'
 for tpmThreshold in np.arange(start, stop+step, step):
@@ -96,10 +96,10 @@ for tpmThreshold in np.arange(start, stop+step, step):
 	#cmd = str('tail -n +2 ') + str(rsemMatrix) + str(" | awk \'{max=$2; for(i=2;i<=NF;i++) if($i>max) max=$i; if(max >= ") + str(tpmThreshold) + str(") {print max};}\' | wc -l")
 
 	# First, remove header line from the matrix
-	cmd1 = "tail -n +2 " + str(rsemMatrix)
+	cmd1 = "tail -n +2 " + str(matrix)
 	p1 = Popen(shlex.split(cmd1), shell=False, stdout=PIPE)
 
-	# Then keep the line only if max_expressed(Transcript) > current_TPM_threshold
+	# Then keep the line only if max_expressed(Transcript) > current_threshold
 	cmd2 = "awk \'{max=$2; for(i=2;i<=NF;i++) if($i>max) max=$i; if(max >= " + str(tpmThreshold) + ") {print max};}\'"
 	p2 = Popen(shlex.split(cmd2), shell=False, stdin=p1.stdout, stdout=PIPE)
 
@@ -123,10 +123,10 @@ plt.scatter(thresholds, nbIsoforms, color='dodgerblue', s=40)
 plt.xlabel('Expression level')
 plt.ylabel('Number of isoforms > expression')
 plt.xlim(start, stop+1)
-plt.title(os.path.basename(rsemMatrix))
+plt.title(os.path.basename(matrix))
 
 
 # Saving graph
-graphFile = outDir + "/Nb_transcripts_"+ os.path.basename(rsemMatrix)
+graphFile = outDir + "/Nb_transcripts_"+ os.path.basename(matrix)
 print "Saving graph :" + graphFile + "\n"
 plt.savefig(graphFile +".png", bbox_inches='tight')
