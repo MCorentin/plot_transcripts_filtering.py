@@ -66,16 +66,16 @@ if(outDir == None):
 	usage()
 	sys.exit()
 
-if not(isinstance(start,(int, long, float))):
-	print("Check your range, 'start' is not an int, long or float !\n")
+if not(isinstance(start,(int, float))):
+	print("Check your range, 'start' is not an int or float !\n")
 	sys.exit()
 
-if not(isinstance(stop, (int, long, float))):
-	print("Check your range, 'stop' is not an int, long or float !\n")
+if not(isinstance(stop, (int, float))):
+	print("Check your range, 'stop' is not an int or float !\n")
 	sys.exit()
 
-if not(isinstance(step, (int, long, float))):
-	print("Check your range, 'step' is not an int, long or float !\n")
+if not(isinstance(step, (int, float))):
+	print("Check your range, 'step' is not an int or float !\n")
 	sys.exit()
 
 if not(os.path.isdir(outDir)):
@@ -112,6 +112,8 @@ for tpmThreshold in np.arange(start, stop+step, step):
 	# Finally get the number of transcript for the result
 	cmd3 = "wc -l"
 	result = Popen(shlex.split(cmd3), shell=False, stdin=p2.stdout, stdout=PIPE).communicate()[0]
+	# Popen is outputing bytes, so we use "decode()" to change it to string
+	result = result.decode()
 
 	# 'thresholds' and 'nbIsoforms' works in parallel: thresholds[i] corresponds to nbIsoforms[i]
 	thresholds.append(tpmThreshold)
