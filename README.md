@@ -6,10 +6,11 @@ A transcript is filtered if its expression is not higher than the threshold in a
 ## Motivation
 
 Useful to assess the level of filtering a transcriptomic assembly will need (lowly expressed transcripts are often artifacts).
+However, keep in mind that some relevant transcripts are just lowly expressed.
 
 ## Usage
 
-python plot_TPM_values.py -i <i>matrix</i> -r <i>start,stop,step</i> -o <i>outputDir</i>
+python plot_trancripts_filtering.py -i <i>matrix</i> -r <i>start,stop,step</i> -o <i>outputDir</i>
 
 <i>matrix</i>: RSEM [1] matrix of gene expression (any matrix with samples as columns and transcripts as rows should work, the first line will be considered as a header and will be skipped).
 
@@ -26,3 +27,25 @@ For each threshold, the plot prints the number of transcripts left:
 
 
 [1] http://deweylab.biostat.wisc.edu/rsem/README.html
+
+
+## Dependancies
+
+This script uses bash commands to get the number of transcripts at each threshold, so you will need the following executables (all of them are available by default on Linux Systems).
+```
+    awk
+    tail
+    wc
+```
+
+You will also need the following python packages:
+**Note:** The following python packages are already built-in from python2.7 and do not need to be installed:
+```
+ getopt 
+ subprocess 
+ sys 
+ os 
+ shlex
+```
+- **Python v2 or v3**
+- **The following python packages:** [numpy](http://www.numpy.org/ "Numpy Homepage"), [matplotlib.pyplot](https://matplotlib.org/ "Matplotlib Homepage"), getopt, subprocess, sys, os, shlex.

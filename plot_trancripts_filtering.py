@@ -12,7 +12,12 @@ import matplotlib.pyplot as plt
 
 
 def usage():
-	print "-h / --help for help\nInput:\n	-i / --matrix file containing the counts matrix (isoforms or genes)\n	-r / --range for filtering range (format: start,stop,step) default:0,6,0.5\noutput:\n	-o / --outputDir for output directory\n"
+	print("-h / --help for help")
+	print("Input:")
+	print("	-i / --matrix file containing the counts matrix (isoforms or genes)")
+	print("	-r / --range for filtering range (format: start,stop,step) default:0,6,0.5")
+	print("output:")
+	print("	-o / --outputDir for output directory")
 
 # Default values
 outDir = "./"
@@ -26,8 +31,9 @@ step = 0.5
 try:
         opts, args = getopt.getopt(sys.argv[1:], "hi:r:o:", ["help", "matrix=", "range=", "outputDir="])
 except getopt.GetoptError as err:
-        # print help information and exit:
-        print str(err)  # will print something like "option -a not recognized"
+		# will print something like "option -a not recognized"
+        print(str(err))
+		# print help information and exit:
         usage()
         sys.exit(2)
 
@@ -49,24 +55,24 @@ for o, a in opts:
 
 # Check Input
 if(matrix == None):
-	print "Please provide a count matrix as input (option -i / --matrix)\n"
-	print "Usage:\n"
+	print("Please provide a count matrix as input (option -i / --matrix)\n")
+	print("Usage:\n")
 	usage()
 	sys.exit()
 
 if(outDir == None):
-	print "Please provide output directory (option -o / --outputDir)\n"
-        print "Usage:\n"
-        usage()
+	print("Please provide output directory (option -o / --outputDir)\n")
+	print("Usage:\n")
+	usage()
 	sys.exit()
 
 if not(isinstance(start,(int, long, float))):
 	print("Check your range, 'start' is not an int, long or float !\n")
-        sys.exit()
+	sys.exit()
 
 if not(isinstance(stop, (int, long, float))):
 	print("Check your range, 'stop' is not an int, long or float !\n")
-        sys.exit()
+	sys.exit()
 
 if not(isinstance(step, (int, long, float))):
 	print("Check your range, 'step' is not an int, long or float !\n")
@@ -74,11 +80,11 @@ if not(isinstance(step, (int, long, float))):
 
 if not(os.path.isdir(outDir)):
 	print(str(outDir)+" is not a directory !\n")
-        sys.exit()
+	sys.exit()
 
 if not(os.path.exists(matrix)):
 	print(str(matrix)+" does not exists !\n")
-        sys.exit()
+	sys.exit()
 
 
 ################################## PLOT ########################################################
@@ -128,5 +134,5 @@ plt.title(os.path.basename(matrix))
 
 # Saving graph
 graphFile = outDir + "/Nb_transcripts_"+ os.path.basename(matrix)
-print "Saving graph :" + graphFile + "\n"
+print("Saving graph :" + graphFile + "\n")
 plt.savefig(graphFile +".png", bbox_inches='tight')
