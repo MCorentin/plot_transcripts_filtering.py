@@ -18,6 +18,9 @@ python plot_trancripts_filtering.py -i <i>matrix</i> -r <i>start,stop,step</i> -
 
 <i>outputDir</i>: The output directory (default current directory)
 
+-n: will skip the plot creation (the output will be a tsv file). Useful when no graphic is available
+-v: activate the verbose mode, without this option, the script will be silent (except for errors)
+
 # Output 
 
 For each threshold, the plot prints the number of transcripts left:
