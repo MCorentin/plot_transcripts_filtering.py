@@ -1,6 +1,6 @@
 # Plot transcripts filtering
 
-Python script to plot the number of transcript left after filtering a RSEM count matrix.
+Python script to plot the number of transcript left after filtering a RSEM count matrix. Will also output the information as a tsv file.
 A transcript is filtered if its expression is not higher than the threshold in any of the samples.
 
 ## Motivation
@@ -18,15 +18,15 @@ python plot_trancripts_filtering.py -i <i>matrix</i> -r <i>start,stop,step</i> -
 
 <i>outputDir</i>: The output directory (default current directory)
 
--n: will skip the plot creation (the output will be a tsv file). Useful when no graphic is available
+-n: will skip the plot creation, useful if you have no graphics (you will encounter the "no display available" error).
+
 -v: activate the verbose mode, without this option, the script will be silent (except for errors)
 
-# Output 
+## Output 
 
 For each threshold, the plot prints the number of transcripts left:
 
 ![alt text](https://raw.githubusercontent.com/MCorentin/plot_transcripts_filtering.py/master/Nb_transcripts_example.EXPR.matrix.png)
-
 
 
 [1] http://deweylab.biostat.wisc.edu/rsem/README.html

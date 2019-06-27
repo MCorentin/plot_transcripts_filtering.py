@@ -100,7 +100,9 @@ if not(os.path.exists(matrix)):
 thresholds = list()
 nbIsoforms = list()
 
-plt.figure(figsize=(20,10))
+# We need to create the plot now to add the text as we go along the filtering in the loop below
+if(noplot == False):
+	plt.figure(figsize=(20,10))
 
 if(verbose == True):
 	print(matrix)
@@ -130,7 +132,9 @@ for tpmThreshold in np.arange(start, stop+step, step):
 
 	#Plot coordinates in the plot next to the dots
 	strResult = str(result).replace("\n", "")
-	plt.text(tpmThreshold, result, "("+strResult+")")
+	
+	if(noplot == False):
+		plt.text(tpmThreshold, result, "("+strResult+")")
 
 	if(verbose == True):
 		print("Number of transcripts: " + strResult + "\n")
